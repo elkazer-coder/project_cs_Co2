@@ -47,11 +47,11 @@ st.info("Distance: _to be calculated_")
 st.info("CO₂ Emissions: _to be calculated_")
 
         # Placeholders for future charts
-        st.subheader("Comparison Chart")
-        st.write("_Chart will appear here after calculation_")
+st.subheader("Comparison Chart")
+st.write("_Chart will appear here after calculation_")
 
-    else:
-        st.error("Please enter both a start and destination address.")
+else:
+st.error("Please enter both a start and destination address.")
 
 # ---- FOOTER ----
 st.markdown("""---""")
