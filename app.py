@@ -43,8 +43,8 @@ if st.button("Calculate Emissions"):
     f"Calculating emissions from **{start}** to **{end}** "
     f"using a **{vehicle_type}** vehicle ({selected_model}, {selected_year})..."
 )
-        st.info("Distance: _to be calculated_")
-        st.info("CO₂ Emissions: _to be calculated_")
+st.info("Distance: _to be calculated_")
+st.info("CO₂ Emissions: _to be calculated_")
 
         # Placeholders for future charts
         st.subheader("Comparison Chart")
