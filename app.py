@@ -18,13 +18,19 @@ vehicle_type = st.sidebar.selectbox(
     ["Petrol", "Diesel", "Electric", "Hybrid"]
 )
 
-# Example hardcoded models by vehicle type (we will later load this from CSV or API)
+st.sidebar.selectbox(
+    years = list(range(1990, 2025))
+    selected_year = st.sidebar.selectbox("Select year of the car", years)
+
+)
+# Example of research by vehicle type (we will later load this from CSV or API)
 vehicle_models = {
     "Petrol": ["Toyota Corolla", "VW Golf", "Ford Fiesta"],
     "Diesel": ["BMW 320d", "Audi A4", "Renault Megane"],
     "Electric": ["Tesla Model 3", "Renault Zoe", "BMW i3"],
     "Hybrid": ["Toyota Prius", "Honda Insight", "Hyundai Ioniq"]
 }
+
 
 model_options = vehicle_models[vehicle_type]
 selected_model = st.sidebar.selectbox("Choose car model", model_options)
