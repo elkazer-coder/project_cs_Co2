@@ -17,12 +17,8 @@ vehicle_type = st.sidebar.selectbox(
     "Select vehicle type", 
     ["Petrol", "Diesel", "Electric", "Hybrid"]
 )
-
-st.sidebar.selectbox(
-    years = list(range(1990, 2025))
-    selected_year = st.sidebar.selectbox("Select year of the car", years)
-
-)
+years = list(range(1990, 2025))
+selected_year = st.sidebar.selectbox("Select year of the car", years)
 # Example of research by vehicle type (we will later load this from CSV or API)
 vehicle_models = {
     "Petrol": ["Toyota Corolla", "VW Golf", "Ford Fiesta"],
