@@ -19,6 +19,7 @@ vehicle_type = st.sidebar.selectbox(
 )
 years = list(range(1990, 2025))
 selected_year = st.sidebar.selectbox("Select year of the car", years)
+
 # Example of research by vehicle type (we will later load this from CSV or API)
 vehicle_models = {
     "Petrol": ["Toyota Corolla", "VW Golf", "Ford Fiesta"],
@@ -38,7 +39,10 @@ st.header("Your Journey Summary")
 
 if st.button("Calculate Emissions"):
     if start and end:
-        st.success(f"Calculating emissions from **{start}** to **{end}** using a **{vehicle_type}** vehicle...")
+     st.success(
+    f"Calculating emissions from **{start}** to **{end}** "
+    f"using a **{vehicle_type}** vehicle ({selected_model}, {selected_year})..."
+)
         st.info("Distance: _to be calculated_")
         st.info("CO₂ Emissions: _to be calculated_")
 
