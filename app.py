@@ -51,7 +51,7 @@ st.subheader("Comparison Chart")
 st.write("_Chart will appear here after calculation_")
 
 else:
-st.error("Please enter both a start and destination address.")
+        st.error("Please enter both a start and destination address.")
 
 # ---- FOOTER ----
 st.markdown("""---""")
