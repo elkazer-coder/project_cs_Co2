@@ -1,58 +1,56 @@
 import streamlit as st
 
 # ---- PAGE SETUP ----
-st.set_page_config(page_title="🖕🏾Car Journey CO₂ Emission Calculator", page_icon="🚗", layout="centered")
+st.set_page_config(page_title="Car Journey CO₂ Emission Calculator", page_icon="🚗", layout="centered")
 
-# ---- HEADER ----
-st.title("Car Journey CO₂ Emission Calculator")
-st.write("Welcome! This app will help you calculate and compare the carbon emissions of your trips.")
+st.title("🚗 Car Journey CO₂ Emission Calculator")
+st.write("Select your car below to estimate emissions for your trip.")
 
-# ---- SIDEBAR ----
-st.sidebar.header("Journey Details")
-
-start = st.sidebar.text_input("Enter start address")
-end = st.sidebar.text_input("Enter destination address")
-
-vehicle_type = st.sidebar.selectbox(
-    "Select vehicle type", 
-    ["Petrol", "Diesel", "Electric", "Hybrid"]
-)
-
-# Example of research by vehicle type (we will later load this from CSV or API)
-vehicle_brand = {
-    "Petrol": ["Toyota Corolla", "VW Golf", "Ford Fiesta"],
-    "Diesel": ["BMW 320d", "Audi A4", "Renault Megane"],
-    "Electric": ["Tesla Model 3", "Renault Zoe", "BMW i3"],
-    "Hybrid": ["Toyota Prius", "Honda Insight", "Hyundai Ioniq"]
+# ---- Vehicle Data Structure ----
+vehicles = {
+    "Toyota": {
+        "Petrol": ["Corolla", "Yaris"],
+        "Hybrid": ["Prius", "C-HR"]
+    },
+    "BMW": {
+        "Diesel": ["320d", "530d"],
+        "Electric": ["i3", "iX"]
+    },
+    "Renault": {
+        "Petrol": ["Clio", "Megane"],
+        "Electric": ["Zoe"]
+    }
 }
 
-# dropdown menu for years
-brand_options = vehicle_brand[vehicle_type]
-selected_brand = st.sidebar.selectbox("Choose car brand", brand_options)
+# ---- SIDEBAR ----
+st.sidebar.header("Choose your vehicle")
 
-years = list(range(1990, 2026))
-selected_year = st.sidebar.selectbox("Select year of the car", years)
+# Step 1: Select brand
+brands = list(vehicles.keys())
+selected_brand = st.sidebar.selectbox("Select car brand", brands)
 
-compare_public_transport = st.sidebar.checkbox("Compare with public transport")
-show_alternatives = st.sidebar.checkbox("Show alternative vehicles")
+# Step 2: Select type based on brand
+if selected_brand:
+    types = list(vehicles[selected_brand].keys())
+    selected_type = st.sidebar.selectbox("Select vehicle type (fuel)", types)
+else:
+    selected_type = None
+
+# Step 3: Select model based on brand and type
+if selected_brand and selected_type:
+    models = vehicles[selected_brand][selected_type]
+    selected_model = st.sidebar.selectbox("Select vehicle model", models)
+else:
+    selected_model = None
 
 # ---- MAIN SECTION ----
-st.header("Your Journey Summary")
+st.header("Vehicle Summary")
 
-if st.button("Calculate Emissions"):
-    if start and end:
-        st.success(
-            f"Calculating emissions from **{start}** to **{end}** "
-            f"using a **{vehicle_type}** vehicle ({selected_brand}, {selected_year})..."
-        )
-        st.info("Distance: _to be calculated_")
-        st.info("CO₂ Emissions: _to be calculated_")
+if selected_model:
+    st.success(f"You selected a **{selected_brand} {selected_model}** using **{selected_type}**.")
+else:
+    st.info("Please select a brand, type, and model to continue.")
 
-        # Placeholders for future charts
-        st.subheader("Comparison Chart")
-        st.write("_Chart will appear here after calculation_")
-    else:
-        st.error("Please enter both a start and destination address.")
 
 
 # ---- FOOTER ----
