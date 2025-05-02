@@ -26,11 +26,13 @@ vehicle_models = {
     "Hybrid": ["Toyota Prius", "Honda Insight", "Hyundai Ioniq"]
 }
 
+# dropdown menu for years
+model_options = vehicle_models[vehicle_type]
+selected_model = st.sidebar.selectbox("Choose car model", model_options)
+
 years = list(range(1990, 2026))
 selected_year = st.sidebar.selectbox("Select year of the car", years)
 
-model_options = vehicle_models[vehicle_type]
-selected_model = st.sidebar.selectbox("Choose car model", model_options)
 compare_public_transport = st.sidebar.checkbox("Compare with public transport")
 show_alternatives = st.sidebar.checkbox("Show alternative vehicles")
 
