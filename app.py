@@ -6,14 +6,14 @@ st.set_page_config(page_title="Car Selection", page_icon="🚗", layout="centere
 st.title("🚗 Select Your Car")
 st.write("Choose your car step by step.")
 
-#Loading data from the CSV file
+#Loading data from the CSV file for sidebar
 df = pd.read_csv("Euro_6_latest.csv", encoding="ISO-8859-1") #I had to encode it bc it didn't read well the file
 df.columns = df.columns.str.strip().str.replace(" ", "_")
 
 # Drop rows with missing key fields
 df = df.dropna(subset=['Manufacturer', 'Fuel_Type', 'Model', 'Description'])
 
-#SIDEBAR: Drop down menu
+#Drop down menu
 st.sidebar.header("Select Your Vehicle")
 
 #Manufacturer
