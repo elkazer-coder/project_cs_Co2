@@ -33,7 +33,7 @@ selected_model = st.sidebar.selectbox("Model", models)
 #Description (filtered by brand + fuel + model)
 filtered_df = filtered_df[filtered_df['Model'] == selected_model]
 descriptions = sorted(filtered_df['Description'].unique())
-selected_description = st.sidebar.selectbox("Step 4: Description", descriptions)
+selected_description = st.sidebar.selectbox("Description", descriptions)
 
 
 
