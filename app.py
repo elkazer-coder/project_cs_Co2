@@ -2,77 +2,88 @@ import streamlit as st
 import pandas as pd
 
 # ---- PAGE SETUP ----
-st.set_page_config(
-    page_title="Car Journey CO₂ Emission Calculator",  # Sets the page title
-    page_icon="🚗",  # Icon shown in the browser tab
-    layout="centered"  # Centers the app layout
-)
+st.set_page_config(page_title="Car Journey CO₂ Emission Calculator", page_icon="🚗", layout="centered")
 
-st.title("🚗 Car Journey CO₂ Emission Calculator")  # Main title at the top of the page
-st.write("Select your vehicle to estimate CO₂ emissions.")  # Description
+st.title("🚗 Car Journey CO₂ Emission Calculator")
+st.write("Select your vehicle to estimate CO₂ emissions.")
 
 # ---- DATA LOADING ----
-df = pd.read_csv("Euro_6_latest.csv", encoding="ISO-8859-1") # to read the CSV file 
+try:
+    # Try reading the CSV with encoding fix
+    df = pd.read_csv("Euro_6_latest.csv", encoding="ISO-8859-1")
 
-# Remove rows with missing key data to avoid errors in dropdowns
-df = df.dropna(subset=['Manufacturer', 'Fuel Type', 'Model', 'CO2'])
+    # Clean column names: remove spaces and standardize formatting
+    df.columns = df.columns.str.strip()               # remove leading/trailing spaces
+    df.columns = df.columns.str.replace(" ", "_")     # replace spaces with underscores
 
-# ---- SIDEBAR FILTERS ----
-st.sidebar.header("Select your vehicle")  # Sidebar section title
+    # Show actual column names for debugging
+    st.write("✅ Loaded CSV columns:")
+    st.write(df.columns.tolist())
 
-# Dropdown 1: Manufacturer (car brand)
-brands = sorted(df['Manufacturer'].unique())  # Get unique brands from the CSV
-selected_brand = st.sidebar.selectbox("Manufacturer", brands)  # Let user choose a brand
+    # Drop rows with missing required fields
+    required_columns = ['Manufacturer', 'Fuel_Type', 'Model', 'CO2']
+    df = df.dropna(subset=required_columns)
 
-# Dropdown 2: Fuel Type (Petrol, Diesel, Electric, etc.) - filtered by brand
-types = sorted(df[df['Manufacturer'] == selected_brand]['Fuel Type'].unique())
-selected_type = st.sidebar.selectbox("Fuel Type", types)
+    # ---- SIDEBAR FILTERS ----
+    st.sidebar.header("Select your vehicle")
 
-# Dropdown 3: Model - filtered by brand and fuel type
-models = sorted(df[
-    (df['Manufacturer'] == selected_brand) &
-    (df['Fuel Type'] == selected_type)
-]['Model'].unique())
-selected_model = st.sidebar.selectbox("Model", models)
+    # Step 1: Manufacturer (brand)
+    brands = sorted(df['Manufacturer'].unique())
+    selected_brand = st.sidebar.selectbox("Manufacturer", brands)
 
-# Dropdown 4: Transmission type - filtered by previous selections
-transmissions = sorted(df[
-    (df['Manufacturer'] == selected_brand) &
-    (df['Fuel Type'] == selected_type) &
-    (df['Model'] == selected_model)
-]['Transmission'].dropna().unique())
-selected_transmission = st.sidebar.selectbox("Transmission", transmissions)
+    # Step 2: Fuel type
+    types = sorted(df[df['Manufacturer'] == selected_brand]['Fuel_Type'].unique())
+    selected_type = st.sidebar.selectbox("Fuel Type", types)
 
-# Dropdown 5: Euro Standard - filtered by brand + fuel type + model + transmission
-euro_standards = df[
-    (df['Manufacturer'] == selected_brand) &
-    (df['Fuel Type'] == selected_type) &
-    (df['Model'] == selected_model) &
-    (df['Transmission'] == selected_transmission)
-]['Euro Standard'].dropna().unique()
-selected_euro = st.sidebar.selectbox("Euro Standard", euro_standards)
+    # Step 3: Model
+    models = sorted(df[
+        (df['Manufacturer'] == selected_brand) &
+        (df['Fuel_Type'] == selected_type)
+    ]['Model'].unique())
+    selected_model = st.sidebar.selectbox("Model", models)
 
-# ---- MAIN OUTPUT ----
-st.header("Selected Vehicle Summary")  # Section title
+    # Step 4: Transmission
+    transmissions = sorted(df[
+        (df['Manufacturer'] == selected_brand) &
+        (df['Fuel_Type'] == selected_type) &
+        (df['Model'] == selected_model)
+    ]['Transmission'].dropna().unique())
+    selected_transmission = st.sidebar.selectbox("Transmission", transmissions)
 
-# Filter the DataFrame to show the exact selected row(s)
-filtered_df = df[
-    (df['Manufacturer'] == selected_brand) &
-    (df['Fuel Type'] == selected_type) &
-    (df['Model'] == selected_model) &
-    (df['Transmission'] == selected_transmission) &
-    (df['Euro Standard'] == selected_euro)
-]
+    # Step 5: Euro Standard
+    euro_standards = df[
+        (df['Manufacturer'] == selected_brand) &
+        (df['Fuel_Type'] == selected_type) &
+        (df['Model'] == selected_model) &
+        (df['Transmission'] == selected_transmission)
+    ]['Euro_Standard'].dropna().unique()
+    selected_euro = st.sidebar.selectbox("Euro Standard", euro_standards)
 
-# If a matching row exists, show its info
-if not filtered_df.empty:
-    st.success(f"You selected: **{selected_brand} {selected_model}** "
-               f"({selected_type}, {selected_transmission}, Euro {selected_euro})")  # Summary text
-    st.write("Here is your vehicle's technical data:")  # Explanation
-    st.dataframe(filtered_df)  # Shows the full row(s) in a table
-    st.info(f"💨 Average CO₂ emissions: **{filtered_df['CO2'].mean():.1f} g/km**")  # Shows mean CO₂
-else:
-    st.warning("No data found for the selected combination.")  # Shown if the selection returns nothing
+    # ---- MAIN OUTPUT ----
+    st.header("Selected Vehicle Summary")
+
+    # Filter to matching row(s)
+    filtered_df = df[
+        (df['Manufacturer'] == selected_brand) &
+        (df['Fuel_Type'] == selected_type) &
+        (df['Model'] == selected_model) &
+        (df['Transmission'] == selected_transmission) &
+        (df['Euro_Standard'] == selected_euro)
+    ]
+
+    if not filtered_df.empty:
+        st.success(f"You selected: **{selected_brand} {selected_model}** "
+                   f"({selected_type}, {selected_transmission}, Euro {selected_euro})")
+        st.write("Here is your vehicle's data:")
+        st.dataframe(filtered_df)
+        st.info(f"💨 Average CO₂ emissions: **{filtered_df['CO2'].mean():.1f} g/km**")
+    else:
+        st.warning("No matching data found.")
+
+except Exception as e:
+    st.error("❌ Failed to load or process the CSV file.")
+    st.exception(e)
+
 
 
 
