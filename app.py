@@ -12,7 +12,7 @@ st.title("🚗 Car Journey CO₂ Emission Calculator")  # Main title at the top 
 st.write("Select your vehicle to estimate CO₂ emissions.")  # Description
 
 # ---- DATA LOADING ----
-df = pd.read_csv("Euro_6_latest.csv")  # to read the CSV file 
+df = pd.read_csv("Euro_6_latest.csv", encoding="ISO-8859-1") # to read the CSV file 
 
 # Remove rows with missing key data to avoid errors in dropdowns
 df = df.dropna(subset=['Manufacturer', 'Fuel Type', 'Model', 'CO2'])
