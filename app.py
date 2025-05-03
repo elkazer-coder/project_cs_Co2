@@ -7,31 +7,35 @@ st.set_page_config(page_title="Car Journey CO₂ Emission Calculator", page_icon
 st.title("🚗 Car Journey CO₂ Emission Calculator")
 st.write("Select your vehicle to estimate CO₂ emissions.")
 
-# ---- DATA LOADING ----
 try:
-    # Try reading the CSV with encoding fix
-    df = pd.read_csv("Euro_6_latest.csv", encoding="ISO-8859-1")
+    # ---- LOAD DATA ----
+    df = pd.read_csv("Euro_6_latest.csv", encoding="ISO-8859-1")  # read the file with correct encoding
 
-    # Clean column names: remove spaces and standardize formatting
-    df.columns = df.columns.str.strip()               # remove leading/trailing spaces
-    df.columns = df.columns.str.replace(" ", "_")     # replace spaces with underscores
+    # Clean up column names
+    df.columns = df.columns.str.strip()                # remove leading/trailing spaces
+    df.columns = df.columns.str.replace(" ", "_")      # replace spaces with underscores
+    df.columns = df.columns.str.replace("–", "-")      # normalize special dashes
 
-    # Show actual column names for debugging
+    # Rename CO₂ column to CO2 for easier handling
+    if "CO₂" in df.columns:
+        df = df.rename(columns={"CO₂": "CO2"})
+
+    # Show column names for verification (can be removed later)
     st.write("✅ Loaded CSV columns:")
     st.write(df.columns.tolist())
 
-    # Drop rows with missing required fields
+    # Drop rows with missing values in key columns
     required_columns = ['Manufacturer', 'Fuel_Type', 'Model', 'CO2']
     df = df.dropna(subset=required_columns)
 
     # ---- SIDEBAR FILTERS ----
     st.sidebar.header("Select your vehicle")
 
-    # Step 1: Manufacturer (brand)
+    # Step 1: Brand
     brands = sorted(df['Manufacturer'].unique())
     selected_brand = st.sidebar.selectbox("Manufacturer", brands)
 
-    # Step 2: Fuel type
+    # Step 2: Fuel Type
     types = sorted(df[df['Manufacturer'] == selected_brand]['Fuel_Type'].unique())
     selected_type = st.sidebar.selectbox("Fuel Type", types)
 
@@ -62,7 +66,6 @@ try:
     # ---- MAIN OUTPUT ----
     st.header("Selected Vehicle Summary")
 
-    # Filter to matching row(s)
     filtered_df = df[
         (df['Manufacturer'] == selected_brand) &
         (df['Fuel_Type'] == selected_type) &
@@ -83,6 +86,7 @@ try:
 except Exception as e:
     st.error("❌ Failed to load or process the CSV file.")
     st.exception(e)
+
 
 
 
