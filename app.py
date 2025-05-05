@@ -63,7 +63,7 @@ if not final_row.empty:
         co2_g_per_km = co2_g_per_mile / 1.60934
         total_emissions_grams = co2_g_per_km * distance_km
         total_emissions_kg = total_emissions_grams / 1000
-        st.metric("💨 CO₂ Emissions", f"{total_emissions_kg:.2f} kg for {distance_km} km")
+        st.metric("💨 CO₂ Emissions", f"{total_emissions_kg:.2f} kg")
     else:
         st.warning("💨 CO₂ emissions could not be calculated for the selected vehicle.")
 
@@ -71,7 +71,7 @@ if not final_row.empty:
     if pd.notna(mpg) and mpg > 0:
         l_per_100km = 235.21 / mpg
         fuel_for_trip = (l_per_100km * distance_km) / 100
-        st.metric("⛽ Fuel Consumption", f"{fuel_for_trip:.2f} liters for {distance_km} km")
+        st.metric("⛽ Fuel Consumption", f"{fuel_for_trip:.2f} liters")
     else:
         st.warning("⛽ Fuel consumption could not be calculated for the selected vehicle.")
 
