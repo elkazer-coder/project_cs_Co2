@@ -7,7 +7,7 @@ st.title("🚗 Car Trip CO₂ Calculator")
 st.write("Select your car and enter the distance to estimate your trip's carbon emissions.")
 
 # ---- LOAD DATA ----
-df = pd.read_csv("all-vehicles-model@public.csv", encoding="ISO-8859-1")
+df = pd.read_csv("all-vehicles-model@public.csv", sep=";", encoding="ISO-8859-1")
 df.columns = df.columns.str.strip().str.replace(" ", "_")
 
 # Drop rows missing critical fields
