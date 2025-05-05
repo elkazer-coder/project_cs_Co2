@@ -4,20 +4,20 @@ import pandas as pd
 # ---- PAGE SETUP ----
 st.set_page_config(page_title="Car Trip CO₂ Calculator", page_icon="🚗", layout="centered")
 st.title("🚗 Car Trip CO₂ Calculator")
-st.write("Select your car and enter the distance to estimate your trip's carbon emissions.")
+st.write("Select your car and trip distance to estimate your CO₂ emissions.")
 
 # ---- LOAD DATA ----
-df = pd.read_csv("all-vehicles-model@public.csv", sep=";", encoding="ISO-8859-1")
+df = pd.read_csv("all-vehicles-model@public.csv", sep=";", encoding="ISO-8859-1", engine="python")
 df.columns = df.columns.str.strip().str.replace(" ", "_")
 
 # Drop rows missing critical fields
-df = df.dropna(subset=["Make", "Fuel_Type1", "Model", "Co2__Tailpipe_For_Fuel_Type1"])
+df = df.dropna(subset=["Make", "Fuel_Type1", "Model", "Year", "Co2__Tailpipe_For_Fuel_Type1"])
 
-# ---- SIDEBAR: CAR SELECTION ----
+# ---- SIDEBAR: FULL CAR SELECTION ----
 st.sidebar.header("Select Your Vehicle")
 
 # Step 1: Make
-makes = sorted(df['Make'].unique())
+makes = sorted(df['Make'].dropna().unique())
 selected_make = st.sidebar.selectbox("Make", makes)
 
 # Step 2: Fuel Type
@@ -30,31 +30,38 @@ filtered_df = filtered_df[filtered_df['Fuel_Type1'] == selected_fuel]
 models = sorted(filtered_df['Model'].dropna().unique())
 selected_model = st.sidebar.selectbox("Model", models)
 
-# Step 4: Description (if needed, or you can skip)
+# Step 4: Year
 filtered_df = filtered_df[filtered_df['Model'] == selected_model]
-# If there are multiple versions, we use the full row
-selected_car = filtered_df.iloc[0] if not filtered_df.empty else None
+years = sorted(filtered_df['Year'].dropna().unique(), reverse=True)
+selected_year = st.sidebar.selectbox("Year", years)
 
 # Step 5: Trip Distance
-distance_km = st.sidebar.number_input("Enter trip distance (in km)", min_value=1)
+distance_km = st.sidebar.number_input("Trip Distance (km)", min_value=1)
 
-# ---- MAIN SECTION ----
+# ---- MAIN DISPLAY ----
 st.header("Estimated Emissions")
 
-if selected_car is not None:
-    co2_g_per_mile = selected_car['Co2__Tailpipe_For_Fuel_Type1']
+# Final filter based on all four selections
+final_row = df[
+    (df['Make'] == selected_make) &
+    (df['Fuel_Type1'] == selected_fuel) &
+    (df['Model'] == selected_model) &
+    (df['Year'] == selected_year)
+]
+
+if not final_row.empty:
+    co2_g_per_mile = final_row.iloc[0]['Co2__Tailpipe_For_Fuel_Type1']
     if co2_g_per_mile > 0:
         co2_g_per_km = co2_g_per_mile / 1.60934
         total_emissions_grams = co2_g_per_km * distance_km
         total_emissions_kg = total_emissions_grams / 1000
 
-        st.success(f"🌍 Estimated emissions for a {distance_km} km trip:")
-        st.metric(label="CO₂ Emitted", value=f"{total_emissions_kg:.2f} kg")
+        st.success(f"{selected_make} {selected_model} ({selected_year}) - {selected_fuel}")
+        st.metric("Estimated CO₂ Emissions", f"{total_emissions_kg:.2f} kg for {distance_km} km")
     else:
-        st.warning("No CO₂ data available for this vehicle.")
+        st.warning("CO₂ data not available for this vehicle.")
 else:
-    st.info("Please complete your vehicle selection.")
-
+    st.info("No matching vehicle found. Please adjust your selection.")
 
 
 
