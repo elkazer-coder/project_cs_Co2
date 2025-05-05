@@ -4,7 +4,7 @@ import pandas as pd
 # ---- PAGE SETUP ----
 st.set_page_config(page_title="Car Trip CO₂ Calculator", page_icon="🚗", layout="centered")
 st.title("🚗 Car Trip CO₂ Calculator")
-st.write("Select your car and trip distance to estimate your CO₂ emissions.")
+st.write("Select your car and trip distance to estimate your CO₂ emissions and fuel usage.")
 
 # ---- LOAD DATA ----
 df = pd.read_csv("all-vehicles-model@public.csv", sep=";", encoding="ISO-8859-1", engine="python")
@@ -39,7 +39,7 @@ selected_year = st.sidebar.selectbox("Year", years)
 distance_km = st.sidebar.number_input("Trip Distance (km)", min_value=1)
 
 # ---- MAIN DISPLAY ----
-st.header("Estimated Emissions")
+st.header("Estimated Impact")
 
 # Final filter based on all four selections
 final_row = df[
@@ -50,18 +50,58 @@ final_row = df[
 ]
 
 if not final_row.empty:
-    co2_g_per_mile = final_row.iloc[0]['Co2__Tailpipe_For_Fuel_Type1']
+    row = final_row.iloc[0]
+    co2_g_per_mile = row['Co2__Tailpipe_For_Fuel_Type1']
+    mpg = row.get('Combined_Mpg_For_Fuel_Type1', None)
+    ghg_score = row.get('GHG_Score', None)
+
+    # CO₂ calculation
     if co2_g_per_mile > 0:
         co2_g_per_km = co2_g_per_mile / 1.60934
         total_emissions_grams = co2_g_per_km * distance_km
         total_emissions_kg = total_emissions_grams / 1000
-
-        st.success(f"{selected_make} {selected_model} ({selected_year}) - {selected_fuel}")
-        st.metric("Estimated CO₂ Emissions", f"{total_emissions_kg:.2f} kg for {distance_km} km")
     else:
-        st.warning("CO₂ data not available for this vehicle.")
+        co2_g_per_km = total_emissions_kg = None
+
+    # Fuel consumption estimation
+    if mpg and mpg > 0:
+        l_per_100km = 235.21 / mpg
+        fuel_for_trip = (l_per_100km * distance_km) / 100
+    else:
+        l_per_100km = fuel_for_trip = None
+
+    st.success(f"{selected_make} {selected_model} ({selected_year}) - {selected_fuel}")
+    
+    if total_emissions_kg is not None:
+        st.metric("💨 CO₂ Emissions", f"{total_emissions_kg:.2f} kg for {distance_km} km")
+    else:
+        st.warning("⚠️ No CO₂ data available")
+
+    if fuel_for_trip is not None:
+        st.metric("⛽ Fuel used", f"{fuel_for_trip:.2f} liters for {distance_km} km")
+    else:
+        st.warning("⚠️ MPG data missing — cannot calculate fuel usage.")
+
+    # GHG Score with color
+    if pd.notna(ghg_score) and ghg_score > 0:
+        if ghg_score >= 8:
+            color = "#2ECC71"  # green
+        elif ghg_score >= 5:
+            color = "#F39C12"  # orange
+        else:
+            color = "#E74C3C"  # red
+
+        st.markdown(
+            f"<div style='padding: 10px; background-color: {color}; border-radius: 8px; color: white; font-size: 18px;'>"
+            f"🌿 GHG Score: <strong>{int(ghg_score)}</strong> (out of 10)"
+            "</div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.info("GHG score not available.")
 else:
     st.info("No matching vehicle found. Please adjust your selection.")
+
 
 
 
